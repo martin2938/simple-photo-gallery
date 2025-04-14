@@ -2,7 +2,7 @@ import os
 import cv2
 import requests
 from io import BytesIO
-from PIL import Image, ExifTags, ImageFile
+from PIL import Image, ExifTags, ImageFile, JpegImagePlugin
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 from datetime import datetime
 import simplegallery.common as spg_common
@@ -173,6 +173,7 @@ def get_image_description(image_path):
             .decode("utf-8")
         )
         description = description.replace("'", "&apos;").replace('"', "&quot;")
+        print(description)
     else:
         description = ""
 
@@ -225,6 +226,15 @@ def get_image_date(image_path):
     return image_date
 
 
+def get_image_rating(image_path):
+    try:
+        jpeg = JpegImagePlugin.Image.open(image_path)
+        xmp = jpeg.getxmp()
+        return xmp['xmpmeta']['RDF']['Description']['Rating']
+    except:
+        return -1
+
+
 def get_metadata(image, thumbnail_path, public_path):
     """
     Gets the metadata of a media file (image or video)
@@ -244,6 +254,7 @@ def get_metadata(image, thumbnail_path, public_path):
         image_data["size"] = get_image_size(image)
         image_data["type"] = "image"
         image_data["description"] = get_image_description(image)
+        image_data["rating"] = get_image_rating(image)
     elif image.lower().endswith(".gif") or image.lower().endswith(".png"):
         image_data["size"] = get_image_size(image)
         image_data["type"] = "image"
