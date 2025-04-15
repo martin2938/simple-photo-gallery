@@ -39,6 +39,16 @@ def parse_args():
     return parser.parse_args()
 
 
+def load_image_sections(images_data):
+    images_data_list = [[]]
+    for image, values in images_data.items():
+        if values['description']:
+            images_data_list.append([])
+        tmp = {**values, "name": image}
+        images_data_list[-1].append(tmp)
+    return images_data_list
+
+
 def build_html(gallery_config):
     """
     Generates the HTML file (index.html) of the gallery
@@ -54,8 +64,7 @@ def build_html(gallery_config):
         for image in images_data:
             images_data[image]['description'] = ''
 
-    images_data_list = [{**images_data[image], "name": image} for image in images_data.keys()]
-
+    images_data_list = load_image_sections(images_data)
     # Find the first photo for the background if no background photo specified
     background_photo = gallery_config["background_photo"]
     if not background_photo:
@@ -85,7 +94,7 @@ def build_html(gallery_config):
     # Renter the HTML template
     template = env.get_template("index_template.jinja")
     html = template.render(
-        images=images_data_list,
+        sections=images_data_list,
         gallery_config=gallery_config,
         background_photo=background_photo,
         remote_data=remote_data,

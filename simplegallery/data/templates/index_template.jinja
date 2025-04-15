@@ -45,13 +45,13 @@
     </div>
   </div>
 
-
   <!-- GALLERY DESCRIPTIONS -->
-
-  {{ gallery_macros.section(0, images|length,
-                              gallery_config['title'],
-                              '',
-                              images)}}
+  {% for images in sections %}
+    {{ gallery_macros.section(loop.index, 0, images|length,
+                                '',
+                                '',
+                                images)}}
+  {% endfor %}
 
   <!-- END GALLERY DESCRIPTIONS -->
 
