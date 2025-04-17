@@ -46,15 +46,18 @@
   </div>
 
   <!-- GALLERY DESCRIPTIONS -->
+  {% set ns = namespace(images_offset=0) %}
   {% for images in sections %}
-    {{ gallery_macros.section(loop.index, 0, images|length,
+    {% set image_count = images|length %}
+    {{ gallery_macros.section(loop.index, 0, image_count,
                                 '',
                                 '',
-                                images)}}
+                                images,
+                                ns.images_offset)}}
+    {% set ns.images_offset = ns.images_offset + image_count %}
   {% endfor %}
 
   <!-- END GALLERY DESCRIPTIONS -->
-
 
   <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>

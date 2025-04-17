@@ -42,7 +42,7 @@ def parse_args():
 def load_image_sections(images_data):
     images_data_list = [[]]
     for image, values in images_data.items():
-        if values['description']:
+        if values['description'] and images_data_list[-1]:
             images_data_list.append([])
         tmp = {**values, "name": image}
         images_data_list[-1].append(tmp)
@@ -99,7 +99,6 @@ def build_html(gallery_config):
         background_photo=background_photo,
         remote_data=remote_data,
     )
-
     with open(
         os.path.join(gallery_config["public_path"], "index.html"), "w", encoding="utf-8"
     ) as out:

@@ -1,11 +1,11 @@
-{% macro gallery_images_index(from, to, images) -%}
+{% macro gallery_images_index(from, to, images, images_offset) -%}
 
 <div class="row">
   <div class="col gallery">
     {% for i in range(from, to) %}
       <a href="{{ images[i].src }}"
          class="gallery-photo"
-         data-index="{{ i-from }}"
+         data-index="{{ i-from+images_offset }}"
          data-type="{{ images[i].type }}"
          data-gallery="{{ from }}"
          data-width="{{ images[i].size[0] }}"
@@ -51,7 +51,7 @@
 {%- endmacro %}
 
 
-{% macro section(section, from, to, title, description, images) -%}
+{% macro section(section, from, to, title, description, images, images_offset) -%}
 <div class="container-fluid">
   <div class="row">
     <div class="col gallery-section">
@@ -67,7 +67,7 @@
     </div>
   </div>
   {% if from is number %}
-    {{ gallery_images_index(from, to, images) }}
+    {{ gallery_images_index(from, to, images, images_offset) }}
   {% else %}
     {{ gallery_images_string(from, to, images) }}
   {% endif %}
