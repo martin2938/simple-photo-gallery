@@ -11,6 +11,8 @@ import simplegallery.common as spg_common
 # Mapping of the string representation if an Exif tag to its id
 EXIF_TAG_MAP = {ExifTags.TAGS[tag]: tag for tag in ExifTags.TAGS}
 
+# Rating to use when rating can not be found in image
+DEFAULT_RATING = 1
 
 def rotate_image_by_orientation(image):
     """
@@ -230,9 +232,35 @@ def get_image_rating(image_path):
     try:
         jpeg = JpegImagePlugin.Image.open(image_path)
         xmp = jpeg.getxmp()
-        return xmp['xmpmeta']['RDF']['Description']['Rating']
-    except:
-        return -1
+
+        if isinstance(xmp['xmpmeta']['RDF']['Description'], dict):
+            return int(xmp['xmpmeta']['RDF']['Description']['Rating'])
+        elif isinstance(xmp['xmpmeta']['RDF']['Description'], list):
+            for d in xmp['xmpmeta']['RDF']['Description']:
+                if 'Rating' in d:
+                    return int(d['Rating'])
+    except Exception as e:
+        pass
+    print(f"WARNING: using DEFAULT_RATING {DEFAULT_RATING} for image {image_path}")
+    return DEFAULT_RATING
+
+
+def get_image_section(image_path):
+    """
+    Gets the description of an image from the ImageDescription tag as a utf-8 string
+    :param image_path: Path to the image
+    :return: String (utf-8) containing the image description
+    """
+    image = Image.open(image_path)
+    exif = image._getexif()
+    if exif and EXIF_TAG_MAP["Artist"] in exif:
+        section = exif[EXIF_TAG_MAP["Artist"]]
+    else:
+        section = ''
+
+    image.close()
+
+    return section
 
 
 def get_metadata(image, thumbnail_path, public_path):
@@ -255,6 +283,7 @@ def get_metadata(image, thumbnail_path, public_path):
         image_data["type"] = "image"
         image_data["description"] = get_image_description(image)
         image_data["rating"] = get_image_rating(image)
+        image_data["section"] = get_image_section(image)
     elif image.lower().endswith(".gif") or image.lower().endswith(".png"):
         image_data["size"] = get_image_size(image)
         image_data["type"] = "image"

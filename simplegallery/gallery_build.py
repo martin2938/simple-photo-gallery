@@ -39,14 +39,28 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_image_sections(images_data):
+def load_image_sections(images_data, min_rating):
     images_data_list = [[]]
     for image, values in images_data.items():
-        if values['description'] and images_data_list[-1]:
+        if values['section'] and images_data_list[-1]:
             images_data_list.append([])
+        if values['rating'] < min_rating and not values['section']:
+            continue
         tmp = {**values, "name": image}
         images_data_list[-1].append(tmp)
     return images_data_list
+
+
+def get_ratings(images_data):
+    ratings_set = set()
+    for values in images_data.values():
+        ratings_set.add(values['rating'])
+
+    ratings = []
+    for rating in sorted(ratings_set):
+        stars = "★" * rating
+        ratings.append([rating, stars])
+    return ratings
 
 
 def build_html(gallery_config):
@@ -64,7 +78,8 @@ def build_html(gallery_config):
         for image in images_data:
             images_data[image]['description'] = ''
 
-    images_data_list = load_image_sections(images_data)
+    ratings = get_ratings(images_data)
+
     # Find the first photo for the background if no background photo specified
     background_photo = gallery_config["background_photo"]
     if not background_photo:
@@ -90,19 +105,24 @@ def build_html(gallery_config):
     # Setup the jinja2 environment
     file_loader = jinja2.FileSystemLoader(gallery_config["templates_path"])
     env = jinja2.Environment(loader=file_loader)
-
-    # Renter the HTML template
     template = env.get_template("index_template.jinja")
-    html = template.render(
-        sections=images_data_list,
-        gallery_config=gallery_config,
-        background_photo=background_photo,
-        remote_data=remote_data,
-    )
-    with open(
-        os.path.join(gallery_config["public_path"], "index.html"), "w", encoding="utf-8"
-    ) as out:
-        out.write(html)
+
+     # Renter the HTML template for each available rating
+    for rating in ratings:
+        images_data_list = load_image_sections(images_data, rating[0])
+        html = template.render(
+            sections=images_data_list,
+            gallery_config=gallery_config,
+            background_photo=background_photo,
+            remote_data=remote_data,
+            my_rating=rating,
+            ratings=ratings,
+        )
+        with open(
+            os.path.join(gallery_config["public_path"], f"index_{rating[0]}.html"), "w", encoding="utf-8"
+        ) as out:
+            out.write(html)
+        os.symlink(os.path.join(gallery_config["public_path"], "index.html"), os.path.join(gallery_config["public_path"], f"index_{rating[0]}.html"))
 
 
 def main():
