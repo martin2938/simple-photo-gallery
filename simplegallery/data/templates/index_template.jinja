@@ -45,14 +45,6 @@
     </div>
   </div>
 
-  {% for rating in ratings %}
-  {% if rating[0] == my_rating %}
-    <a rel="noreferrer" href="index_{{rating[0]}}.html"><u>{{rating[1]}}</u></a>
-  {% else %}
-    <a rel="noreferrer" href="index_{{rating[0]}}.html">{{rating[1]}}</a>
-  {% endif %}
-  {% endfor %}
-
   <!-- GALLERY DESCRIPTIONS -->
   {% set ns = namespace(images_offset=0) %}
   {% for images in sections %}
@@ -64,6 +56,17 @@
                                 ns.images_offset)}}
     {% set ns.images_offset = ns.images_offset + image_count %}
   {% endfor %}
+
+<hr>
+
+{% for rating in ratings %}
+  {% if rating[0] == my_rating %}
+    <a rel="noreferrer" href="index_{{rating[0]}}.html"><u>{{rating[1]}}</u></a>
+  {% else %}
+    <a rel="noreferrer" href="index_{{rating[0]}}.html">{{rating[1]}}</a>
+  {% endif %}
+  {% endfor %}
+
 
   <!-- END GALLERY DESCRIPTIONS -->
 

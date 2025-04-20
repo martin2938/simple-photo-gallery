@@ -1,4 +1,4 @@
-import os
+import os, code
 import cv2
 import requests
 from io import BytesIO
@@ -6,7 +6,7 @@ from PIL import Image, ExifTags, ImageFile, JpegImagePlugin
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 from datetime import datetime
 import simplegallery.common as spg_common
-
+from jinja2.filters import escape
 
 # Mapping of the string representation if an Exif tag to its id
 EXIF_TAG_MAP = {ExifTags.TAGS[tag]: tag for tag in ExifTags.TAGS}
@@ -174,10 +174,11 @@ def get_image_description(image_path):
             .encode(encoding="utf-16")[2::2]
             .decode("utf-8")
         )
-        description = description.replace("'", "&apos;").replace('"', "&quot;")
+        description = str(escape(description))
+        description = description.replace("\n", "<br>")
     else:
         description = ""
-
+    #code.interact(local=locals())
     image.close()
 
     return description
