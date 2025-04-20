@@ -122,7 +122,10 @@ def build_html(gallery_config):
             os.path.join(gallery_config["public_path"], f"index_{rating[0]}.html"), "w", encoding="utf-8"
         ) as out:
             out.write(html)
-        os.symlink(os.path.join(gallery_config["public_path"], "index.html"), os.path.join(gallery_config["public_path"], f"index_{rating[0]}.html"))
+        try:
+            os.stat(os.path.join(gallery_config["public_path"], "index.html"))
+        except FileNotFoundError:
+            os.symlink(f"index_{rating[0]}.html", os.path.join(gallery_config["public_path"], "index.html"))
 
 
 def main():

@@ -175,7 +175,6 @@ def get_image_description(image_path):
             .decode("utf-8")
         )
         description = description.replace("'", "&apos;").replace('"', "&quot;")
-        print(description)
     else:
         description = ""
 
